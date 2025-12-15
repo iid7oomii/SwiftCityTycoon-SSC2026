@@ -1,0 +1,536 @@
+import SwiftUI
+
+// MARK: - 🎨 GLOBAL VISUAL CONSTANTS
+// This section defines the "Cyberpunk" color palette used throughout the app.
+extension Color {
+    // The main background color: A very dark, almost black shade.
+    static let backgroundBlack = Color(red: 0.05, green: 0.05, blue: 0.08)
+    
+    // The primary neon purple color for titles and main elements.
+    static let neonPurple = Color(red: 0.65, green: 0.3, blue: 0.95)
+    
+    // The accent color (Cyan/Aqua) for interactive buttons and lights.
+    static let neonAqua = Color(red: 0.2, green: 0.85, blue: 0.95)
+    
+    // Green color indicating success or unlocked items.
+    static let successGreen = Color(red: 0.3, green: 0.9, blue: 0.5)
+    
+    // Red color indicating errors, locked items, or danger.
+    static let errorRed = Color(red: 1.0, green: 0.2, blue: 0.4)
+}
+
+// Custom font styles to maintain a consistent futuristic look.
+struct CustomFonts {
+    static let titleFont = Font.system(size: 28, weight: .bold, design: .monospaced)
+    static let bodyFont = Font.system(size: 16, weight: .regular, design: .monospaced)
+    static let codeFont = Font.system(size: 14, weight: .regular, design: .monospaced)
+}
+
+// MARK: - 🎮 GAME STATE MANAGEMENT
+// This Enum tracks exactly which "Scene" or "Level" the player is currently looking at.
+enum GameState {
+    case home         // The starting apartment scene
+    case challenge1   // The Functions Challenge
+    case reward1      // Taxi Unlocked Scene
+    case challenge2   // The Arrays Challenge
+    case challenge3   // The For Loops Challenge (Final Heist)
+    case ending       // The Final Victory Scene
+}
+
+// MARK: - 🏠 MAIN CONTENT VIEW
+// This is the "Brain" of the app. It switches between screens based on the GameState.
+struct ContentView: View {
+    // Tracks the current scene. Starts at 'home'.
+    @State private var gameState: GameState = .home
+    
+    // Tracks the player's money. Starts with 5000 Coins.
+    @State private var swiftCoins: Int = 5000
+
+    var body: some View {
+        ZStack {
+            // 1. Layer 1: The Background (Covers the whole screen)
+            Color.backgroundBlack.ignoresSafeArea()
+            
+            VStack {
+                // 2. Layer 2: The Header Bar (Shows Coins and Title)
+                HStack {
+                    Text("SwiftCoins: \(swiftCoins) 💰")
+                        .font(CustomFonts.bodyFont)
+                        .foregroundColor(.neonAqua)
+                    Spacer()
+                    Text("SWIFT CITY TYCOON")
+                        .font(CustomFonts.titleFont)
+                        .foregroundColor(.neonPurple)
+                        .scaleEffect(0.8) // Slightly smaller to fit iPad screens
+                }
+                .padding()
+                
+                // 3. Layer 3: The Active Scene Switcher
+                // This logic decides which View to show based on 'gameState'
+                Group {
+                    switch gameState {
+                    case .home:
+                        ApartmentHomeView(gameState: $gameState)
+                            .transition(.opacity)
+                    case .challenge1:
+                        ChallengeView_Function(gameState: $gameState, swiftCoins: $swiftCoins)
+                            .transition(.opacity)
+                    case .reward1:
+                        RewardView_Taxi(gameState: $gameState, swiftCoins: $swiftCoins)
+                            .transition(.opacity)
+                    case .challenge2:
+                        ChallengeView_Array(gameState: $gameState, swiftCoins: $swiftCoins)
+                            .transition(.opacity)
+                    case .challenge3:
+                        ChallengeView_ForLoop(gameState: $gameState)
+                            .transition(.opacity)
+                    case .ending:
+                        EndingView()
+                            .transition(.opacity)
+                    }
+                }
+                
+                Spacer()
+            }
+        }
+        // Force Dark Mode for better neon visuals
+        .preferredColorScheme(.dark)
+    }
+}
+
+// MARK: - 🚪 SCENE 1: APARTMENT (HOME)
+struct ApartmentHomeView: View {
+    @Binding var gameState: GameState
+    
+    var body: some View {
+        VStack(spacing: 40) {
+            Spacer()
+            
+            Text("YOUR CYBER-LOFT")
+                .font(CustomFonts.titleFont)
+                .foregroundColor(.neonPurple)
+            
+            // Visual representation of the apartment
+            Image(systemName: "building.2.crop.circle.fill")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 200, height: 200)
+                .foregroundColor(.gray)
+                .shadow(color: .neonPurple, radius: 10)
+            
+            VStack(spacing: 10) {
+                Text("STATUS REPORT:")
+                    .font(CustomFonts.bodyFont)
+                    .foregroundColor(.white)
+                Text("Drone-Taxi: LOCKED 🔒")
+                    .font(CustomFonts.bodyFont)
+                    .foregroundColor(.errorRed)
+            }
+            .padding()
+            .background(Color.white.opacity(0.1))
+            .cornerRadius(10)
+            
+            // Button to start the adventure
+            Button(action: {
+                withAnimation {
+                    gameState = .challenge1
+                }
+            }) {
+                Text("LAUNCH: AUTHENTICATION PROTOCOL")
+                    .font(CustomFonts.bodyFont)
+                    .bold()
+                    .padding()
+                    .frame(maxWidth: .infinity)
+                    .background(Color.neonAqua)
+                    .foregroundColor(.backgroundBlack)
+                    .cornerRadius(12)
+            }
+            .padding(.horizontal, 50)
+            
+            Spacer()
+        }
+    }
+}
+
+// MARK: - 🔒 SCENE 2: CHALLENGE 1 (FUNCTIONS)
+struct ChallengeView_Function: View {
+    @Binding var gameState: GameState
+    @Binding var swiftCoins: Int
+    
+    @State private var userInput: String = ""
+    @State private var feedbackMessage: String = "Enter the Boolean value to unlock."
+    @State private var isError: Bool = false
+    
+    var body: some View {
+        ScrollView {
+            VStack(spacing: 20) {
+                Text("CHALLENGE 01: AERO-LOCK")
+                    .font(CustomFonts.titleFont)
+                    .foregroundColor(.neonPurple)
+                
+                Text("The Drone-Taxi authentication system is broken. Fix the function return value.")
+                    .font(CustomFonts.bodyFont)
+                    .foregroundColor(.white)
+                    .multilineTextAlignment(.center)
+                    .padding()
+
+                // CODE EDITOR VISUALIZATION
+                VStack(alignment: .leading, spacing: 5) {
+                    Text("// Swift City Aero-Lock System").foregroundColor(.gray)
+                    Text("func authenticatePilot(passcode: Int) -> Bool {").foregroundColor(.neonAqua)
+                    Text("    let correctPasscode = 9876").foregroundColor(.white)
+                    Text("    if passcode == correctPasscode {").foregroundColor(.white)
+                    
+                    HStack(spacing: 0) {
+                        Text("        return ").foregroundColor(.neonPurple)
+                        
+                        // User Input Field
+                        TextField("???", text: $userInput)
+                            .font(CustomFonts.codeFont)
+                            .frame(width: 80)
+                            .padding(5)
+                            .background(Color.backgroundBlack)
+                            .border(isError ? Color.errorRed : Color.neonAqua, width: 1)
+                            .foregroundColor(.white)
+                            .autocapitalization(.none)
+                            .disableAutocorrection(true)
+                        
+                        Text(" // Fix this!").foregroundColor(.gray)
+                    }
+                    
+                    Text("    } else {").foregroundColor(.white)
+                    Text("        return false").foregroundColor(.white)
+                    Text("    }").foregroundColor(.white)
+                    Text("}").foregroundColor(.neonAqua)
+                }
+                .font(CustomFonts.codeFont)
+                .padding()
+                .background(Color(white: 0.15))
+                .cornerRadius(10)
+                
+                // Feedback Message
+                Text(feedbackMessage)
+                    .font(CustomFonts.bodyFont)
+                    .foregroundColor(isError ? .errorRed : .neonAqua)
+                    .padding()
+                
+                // Run Button
+                Button(action: {
+                    checkAnswer()
+                }) {
+                    Text("FIX AND RUN CODE")
+                        .font(CustomFonts.bodyFont)
+                        .bold()
+                        .padding()
+                        .frame(maxWidth: .infinity)
+                        .background(Color.neonAqua)
+                        .foregroundColor(.backgroundBlack)
+                        .cornerRadius(12)
+                }
+                .padding(.horizontal, 50)
+            }
+            .padding(.top, 40)
+        }
+    }
+    
+    // Logic to verify the user input
+    func checkAnswer() {
+        // Trimming spaces and checking for "true"
+        if userInput.trimmingCharacters(in: .whitespaces).lowercased() == "true" {
+            isError = false
+            feedbackMessage = "✅ SUCCESS! Access Granted."
+            
+            // Delay to show success message before moving on
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                withAnimation {
+                    swiftCoins += 1500
+                    gameState = .reward1
+                }
+            }
+        } else {
+            isError = true
+            feedbackMessage = "❌ ERROR: Invalid Boolean. Try 'true'."
+        }
+    }
+}
+
+// MARK: - 🏆 SCENE 3: REWARD (TAXI UNLOCKED)
+struct RewardView_Taxi: View {
+    @Binding var gameState: GameState
+    @Binding var swiftCoins: Int
+    @State private var animateDoor = false
+    
+    var body: some View {
+        VStack(spacing: 30) {
+            Text("AUTHENTICATION COMPLETE")
+                .font(CustomFonts.titleFont)
+                .foregroundColor(.successGreen)
+            
+            ZStack {
+                // The Taxi (Hidden behind door initially)
+                Image(systemName: "airplane.circle.fill")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 150)
+                    .foregroundColor(.neonAqua)
+                
+                // The Door
+                Rectangle()
+                    .fill(Color(white: 0.2))
+                    .frame(width: 200, height: 200)
+                    .overlay(
+                        Text("OPENING...")
+                            .font(CustomFonts.codeFont)
+                            .foregroundColor(.successGreen)
+                    )
+                    .offset(x: animateDoor ? 300 : 0) // Slide animation
+                    .opacity(animateDoor ? 0 : 1)
+            }
+            .onAppear {
+                withAnimation(.easeInOut(duration: 2.0)) {
+                    animateDoor = true
+                }
+            }
+            
+            Text("+1500 SwiftCoins Added")
+                .font(CustomFonts.bodyFont)
+                .foregroundColor(.neonAqua)
+            
+            Button(action: {
+                withAnimation {
+                    gameState = .challenge2
+                }
+            }) {
+                Text("GO TO BLACK MARKET")
+                    .font(CustomFonts.bodyFont)
+                    .bold()
+                    .padding()
+                    .background(Color.neonPurple)
+                    .foregroundColor(.white)
+                    .cornerRadius(12)
+            }
+        }
+    }
+}
+
+// MARK: - 🛍️ SCENE 4: CHALLENGE 2 (ARRAYS)
+struct ChallengeView_Array: View {
+    @Binding var gameState: GameState
+    @Binding var swiftCoins: Int
+    
+    @State private var userInput: String = ""
+    @State private var feedbackMessage: String = "Find the index for 'Code Injector V4'."
+    @State private var isError: Bool = false
+    @State private var itemPurchased: Bool = false
+    
+    let inventory = ["Sonic Disruptor", "EMP Blocker", "Code Injector V4", "Cloaking Device"]
+    let costs = [1500, 2500, 3000, 4500]
+    
+    var body: some View {
+        ScrollView {
+            VStack(spacing: 20) {
+                Text("CHALLENGE 02: BLACK MARKET")
+                    .font(CustomFonts.titleFont)
+                    .foregroundColor(.neonPurple)
+                
+                // VISUALIZING THE ARRAY
+                VStack(alignment: .leading) {
+                    Text("// MARKET INVENTORY (Array)").foregroundColor(.gray)
+                    ForEach(0..<inventory.count, id: \.self) { i in
+                        HStack {
+                            Text("Index [\(i)]:").foregroundColor(.neonPurple)
+                            Text("\"\(inventory[i])\"").foregroundColor(.white)
+                        }
+                    }
+                }
+                .font(CustomFonts.codeFont)
+                .padding()
+                .background(Color(white: 0.1))
+                .cornerRadius(8)
+                
+                // CODE PROBLEM
+                VStack(alignment: .leading, spacing: 5) {
+                    Text("// We need 'Code Injector V4'").foregroundColor(.gray)
+                    Text("let itemCosts = [1500, 2500, 3000, 4500]").foregroundColor(.white)
+                    
+                    HStack(spacing: 0) {
+                        Text("let price = itemCosts[").foregroundColor(.neonAqua)
+                        
+                        TextField("?", text: $userInput)
+                            .font(CustomFonts.codeFont)
+                            .frame(width: 40)
+                            .padding(5)
+                            .background(Color.backgroundBlack)
+                            .border(isError ? Color.errorRed : Color.neonAqua, width: 1)
+                            .foregroundColor(.white)
+                            .keyboardType(.numberPad)
+                        
+                        Text("]").foregroundColor(.neonAqua)
+                    }
+                }
+                .font(CustomFonts.codeFont)
+                .padding()
+                .background(Color(white: 0.15))
+                .cornerRadius(10)
+                
+                Text(feedbackMessage)
+                    .font(CustomFonts.bodyFont)
+                    .foregroundColor(isError ? .errorRed : .neonAqua)
+                
+                Button(action: {
+                    if itemPurchased {
+                        withAnimation { gameState = .challenge3 }
+                    } else {
+                        checkAnswer()
+                    }
+                }) {
+                    Text(itemPurchased ? "CONTINUE TO HEIST" : "PURCHASE ITEM")
+                        .font(CustomFonts.bodyFont)
+                        .bold()
+                        .padding()
+                        .frame(maxWidth: .infinity)
+                        .background(itemPurchased ? Color.successGreen : Color.neonAqua)
+                        .foregroundColor(.backgroundBlack)
+                        .cornerRadius(12)
+                }
+                .padding(.horizontal, 50)
+            }
+            .padding(.top, 40)
+        }
+    }
+    
+    func checkAnswer() {
+        // "Code Injector V4" is at index 2
+        if userInput == "2" {
+            if swiftCoins >= 3000 {
+                isError = false
+                swiftCoins -= 3000
+                itemPurchased = true
+                feedbackMessage = "✅ PURCHASE SUCCESSFUL! -3000 Coins."
+            } else {
+                isError = true
+                feedbackMessage = "❌ NOT ENOUGH COINS!"
+            }
+        } else {
+            isError = true
+            feedbackMessage = "❌ WRONG INDEX! Arrays start at 0."
+        }
+    }
+}
+
+// MARK: - 💥 SCENE 5: CHALLENGE 3 (FOR LOOPS)
+struct ChallengeView_ForLoop: View {
+    @Binding var gameState: GameState
+    
+    @State private var userInput: String = ""
+    @State private var feedbackMessage: String = "Send 15 packets to break the firewall."
+    @State private var isError: Bool = false
+    
+    var body: some View {
+        ScrollView {
+            VStack(spacing: 20) {
+                Text("CHALLENGE 03: THE HEIST")
+                    .font(CustomFonts.titleFont)
+                    .foregroundColor(.errorRed)
+                
+                Text("The High-Security Vault requires exactly 15 decryption packets.")
+                    .font(CustomFonts.bodyFont)
+                    .foregroundColor(.white)
+                    .multilineTextAlignment(.center)
+                
+                // CODE PROBLEM
+                VStack(alignment: .leading, spacing: 5) {
+                    Text("// Security Breach Script").foregroundColor(.gray)
+                    Text("let totalPackets = 15").foregroundColor(.white)
+                    
+                    HStack(spacing: 0) {
+                        Text("for i in 1...").foregroundColor(.neonPurple)
+                        
+                        TextField("??", text: $userInput)
+                            .font(CustomFonts.codeFont)
+                            .frame(width: 50)
+                            .padding(5)
+                            .background(Color.backgroundBlack)
+                            .border(isError ? Color.errorRed : Color.neonAqua, width: 1)
+                            .foregroundColor(.white)
+                            .keyboardType(.numberPad)
+                        
+                        Text(" {").foregroundColor(.neonPurple)
+                    }
+                    
+                    Text("    sendPacket()").foregroundColor(.successGreen)
+                    Text("}").foregroundColor(.neonPurple)
+                }
+                .font(CustomFonts.codeFont)
+                .padding()
+                .background(Color(white: 0.15))
+                .cornerRadius(10)
+                
+                Text(feedbackMessage)
+                    .font(CustomFonts.bodyFont)
+                    .foregroundColor(isError ? .errorRed : .neonAqua)
+                
+                Button(action: {
+                    checkAnswer()
+                }) {
+                    Text("EXECUTE ATTACK")
+                        .font(CustomFonts.bodyFont)
+                        .bold()
+                        .padding()
+                        .frame(maxWidth: .infinity)
+                        .background(Color.errorRed)
+                        .foregroundColor(.white)
+                        .cornerRadius(12)
+                }
+                .padding(.horizontal, 50)
+            }
+            .padding(.top, 40)
+        }
+    }
+    
+    func checkAnswer() {
+        // Need to loop from 1 to 15
+        if userInput == "15" {
+            isError = false
+            feedbackMessage = "✅ FIREWALL BREACHED!"
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                withAnimation {
+                    gameState = .ending
+                }
+            }
+        } else {
+            isError = true
+            feedbackMessage = "❌ FAILED! Connection blocked."
+        }
+    }
+}
+
+// MARK: - 🏁 SCENE 6: ENDING (VICTORY)
+struct EndingView: View {
+    var body: some View {
+        VStack(spacing: 30) {
+            Image(systemName: "crown.fill")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 150)
+                .foregroundColor(.yellow)
+                .shadow(color: .yellow, radius: 20)
+            
+            Text("TYCOON STATUS ACHIEVED")
+                .font(CustomFonts.titleFont)
+                .foregroundColor(.successGreen)
+                .multilineTextAlignment(.center)
+            
+            Text("You mastered Swift Functions, Arrays, and Loops to conquer the city.")
+                .font(CustomFonts.bodyFont)
+                .foregroundColor(.white)
+                .multilineTextAlignment(.center)
+                .padding()
+            
+            Text("Project for SSC 2026")
+                .font(CustomFonts.codeFont)
+                .foregroundColor(.gray)
+        }
+    }
+}

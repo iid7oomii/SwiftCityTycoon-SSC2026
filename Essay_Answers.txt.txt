@@ -1,0 +1,16 @@
+APP DETAILS & ESSAY QUESTIONS
+
+1. App Name: Swift City Tycoon
+2. Description: An interactive edutainment playground set in a cyberpunk future.
+3. Tech Used: SwiftUI, State Management, Custom Animations.
+
+ESSAY ANSWER:
+
+My submission, "Swift City Tycoon," is an educational simulation designed to bridge the gap between abstract coding concepts and tangible rewards. I built this app playground to solve a common problem among students: the feeling that learning syntax is disconnected from real-world application.
+
+In this Cyberpunk-themed world, code is literally the currency. I used SwiftUI to create a custom, immersive interface that moves away from the standard console. The user embarks on a three-stage journey:
+1.  First, they encounter a broken Drone-Taxi. By fixing a Swift Function’s return value (understanding Booleans), they unlock transportation.
+2.  Next, they visit a Black Market. Here, they must purchase tools using Arrays, teaching them about zero-based indexing in a high-stakes environment.
+3.  Finally, they perform a digital heist using For Loops, visualizing how iteration controls automated systems.
+
+Technically, I utilized SwiftUI’s `ZStack` for layering neon visuals and `@State` property wrappers to manage the game’s progression flow. I implemented custom `TextField` components that visually integrate into code blocks, creating a seamless "fill-in-the-blank" debugging experience. This project demonstrates that learning Swift can be as exciting as playing a video game.
